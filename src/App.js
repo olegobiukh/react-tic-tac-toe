@@ -20,7 +20,7 @@ export default class App extends Component {
 
     handleClick(event) {
         const position = +event.target.closest(".cell").getAttribute("order");
-
+      console.log(54);
         this.setState(prevState => {
             const updatedCells = prevState.cells.map(cell => {
                 if (cell.id === position && cell.cellcolor === 0) {
@@ -94,12 +94,14 @@ export default class App extends Component {
         
         const cells = this.state.cells.map((cell, index) => (
             <Cell
-                key={index}
+                key={cell.id}
                 index={index}
                 value={cell.cellcolor}
                 handleClick={this.handleClick}
             />
         ));
+
+        
 
         const styles = {};
         const startStyles = {};
@@ -162,8 +164,9 @@ export default class App extends Component {
                 this.state.cells[a].cellcolor === this.state.cells[b].cellcolor &&
                 this.state.cells[b].cellcolor === this.state.cells[c].cellcolor
             ) {
+                
                 winnertStyles.text = `The ${
-                    this.state.players[this.state.cells[a].cellcolor]
+                    this.state.players[this.state.cells[a].cellcolor === 1 ? 0 : 1]
                     } won the competition`;
                 winnertStyles.display = "inline-block";
                 winnertStyles.color = "#fff";
@@ -172,12 +175,13 @@ export default class App extends Component {
                     this.state.counter % 2 === 0 ? "#ff0" : "#f00";
                 winnertStyles.winner = true;
 
-                headerStyles.text = this.state.players[this.state.cells[a].cellcolor];
+                headerStyles.text = this.state.players[this.state.cells[a].cellcolor === 1 ? 0 : 1];
                 headerStyles.backgroundColor = (this.state.cells[a].cellcolor)
                     ? 'rgb(173, 74, 74)'
                     : 'rgb(233, 247, 30)';
 
             }
+            
         }
 
         return (
