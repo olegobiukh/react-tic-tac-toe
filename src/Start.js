@@ -9,5 +9,4 @@ const Start = ({ StartStyles, handleStart}) => {
     )
 }
 
-
 export default Start;
