@@ -1,14 +1,25 @@
 * {
   box-sizing: border-box;
 }
-/* 
-.App-start {
 
-} */
+.display_block {
+  display: block;
+}
 
-.container {
-  position: relative;
-  width: 320px;
+.display_none {
+  display: none;
+}
+
+.Header {
+  display: block;
+  width: 310px;
+  text-align: center;
+  border: 2px solid #000;
+}
+
+.Header--draw {
+  background-color: #000;
+  color: #fff;
 }
 
 .winner {
@@ -26,11 +37,20 @@
   padding-top: 35%;   
 }
 
-.App_header {
-  display: block;
-  width: 310px;
-  text-align: center;
-  border: 2px solid #000;
+.Winner--won {
+  display: inline-block;
+  color: #fff;
+}
+
+.Winner--draw {
+  display: inline-block;
+  background-color: #000;
+  color: #fff;
+}
+
+.container {
+  position: relative;
+  width: 320px;
 }
 
 .cell {
@@ -73,4 +93,12 @@ button:hover {
 
 .Start_btn:hover {
   text-align: right;
+}
+
+.bg_red {
+  background-color: rgb(173, 74, 74)
+}
+
+.bg_yellow {
+  background-color: rgb(233, 247, 30);
 }

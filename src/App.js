@@ -9,7 +9,7 @@ export default class App extends Component {
         this.state = {
             cells: data,
             counter: 0,
-            reset: false,             
+            reset: false,         
             players: [],
             player1: [],
             player2: [],
@@ -20,7 +20,7 @@ export default class App extends Component {
 
     handleClick(event) {
         const position = +event.target.closest(".cell").getAttribute("order");
-      console.log(54);
+
         this.setState(prevState => {
             const updatedCells = prevState.cells.map(cell => {
                 if (cell.id === position && cell.cellcolor === 0) {
@@ -67,6 +67,7 @@ export default class App extends Component {
     }
 
     handleBack() {
+
         this.setState(prevState => {
             let countBack;
 
@@ -87,7 +88,28 @@ export default class App extends Component {
     }
 
     checkForWinner() {
-   
+        const combinations = [
+            "012",
+            "345",
+            "678",
+            "036",
+            "147",
+            "258",
+            "048",
+            "246"
+        ];
+
+        for (let i = 0; i < combinations.length; i++) {
+            const [a, b, c] = combinations[i];
+            if (
+                this.state.cells[a].cellcolor !== 0 &&
+                this.state.cells[a].cellcolor === this.state.cells[b].cellcolor &&
+                this.state.cells[b].cellcolor === this.state.cells[c].cellcolor
+            ) {
+
+             return this.state.cells[a].cellcolor === 1 ? 0 : 1;
+            }
+        }
     }
 
     render() {
@@ -100,122 +122,90 @@ export default class App extends Component {
                 handleClick={this.handleClick}
             />
         ));
-
-        
-
-        const styles = {};
-        const startStyles = {};
-        const winnertStyles = {};
-        let resetText = "reset";
-        const headerStyles = {}; 
-
-        if (
-            this.state.players.every(player => player) &&
-            this.state.players.length === 2
-        ) {
-            styles.display = "block";
-            startStyles.display = "none";
-        } else {
-            styles.display = "none";
-            startStyles.display = "block";
-        }
-
-        if (this.state.reset) {
-            winnertStyles.display = "none";
-            resetText = "reset";
-        }
-
-        if (this.state.counter % 2 === 0) {
-            headerStyles.backgroundColor = 'rgb(173, 74, 74)';
-            headerStyles.text = this.state.players[0]
-        } else if (this.state.counter % 2 !== 0) {
-            headerStyles.backgroundColor = 'rgb(233, 247, 30)';
-            headerStyles.text = this.state.players[1]
-        }
-
-        const combinations = [
-            "012",
-            "345",
-            "678",
-            "036",
-            "147",
-            "258",
-            "048",
-            "246"
-        ];
-
-        if (this.state.counter === 9) {
-          winnertStyles.text = "you played a draw";
-          winnertStyles.display = "inline-block";
-          winnertStyles.backgroundColor = "#000";
-          winnertStyles.color = "#fff";
-          resetText = "revenge";
-
-          headerStyles.backgroundColor = '#000';
-          headerStyles.text = "Game over";
-          headerStyles.backgroundColor = "#000";
-          headerStyles.color = "#ffff";
-        }    
-
-        for (let i = 0; i < combinations.length; i++) {
-            const [a, b, c] = combinations[i];
-            if (
-                this.state.cells[a].cellcolor !== 0 &&
-                this.state.cells[a].cellcolor === this.state.cells[b].cellcolor &&
-                this.state.cells[b].cellcolor === this.state.cells[c].cellcolor
-            ) {
-                
-                winnertStyles.text = `The ${
-                    this.state.players[this.state.cells[a].cellcolor === 1 ? 0 : 1]
-                    } won the competition`;
-                winnertStyles.display = "inline-block";
-                winnertStyles.color = "#fff";
-                resetText = "revenge";
-                winnertStyles.backgroundColor =
-                    this.state.counter % 2 === 0 ? "#ff0" : "#f00";
-                winnertStyles.winner = true;
-
-                headerStyles.text = this.state.players[this.state.cells[a].cellcolor === 1 ? 0 : 1];
-                headerStyles.backgroundColor = (this.state.cells[a].cellcolor)
-                    ? 'rgb(173, 74, 74)'
-                    : 'rgb(233, 247, 30)';
-
-            }
             
-        }
+        const win = this.checkForWinner();
 
         return (
             <div>
                 <Start
-                    startstyle={startStyles}
+                    StartStyles={(
+                        this.state.players.every(player => player) &&
+                        this.state.players.length === 2
+                            ? "display_none"
+                            : "Start_btn btn")}
+
                     handleStart={this.handleStart.bind(this)}
                 />
 
-                <div style={styles}>
+                <div className={(
+                    this.state.players.every(player => player) &&
+                        this.state.players.length === 2
+                        ? "display_block"
+                        : "display_none")}>
                     <h1
-                        style={headerStyles}
-                        className="App_header"
+                        className={(this.state.counter === 9)
+                                    ? "Header Header--draw"
+                                    : (win === 1)
+                                    ? "Header bg_yellow"
+                                    : (win === 0)
+                                    ? "Header bg_red"
+                                    :(this.state.counter % 2 === 0)
+                                    ? "Header bg_red"
+                                    : (this.state.counter % 2 !== 0)
+                                    && "Header bg_yellow"}
                     >
-                        {headerStyles.text}
+                        {(this.state.counter === 9)
+                            ? "Game over"
+                            : (win === 1)
+                            ? this.state.players[1]
+                            : (win === 0)
+                            ? this.state.players[0]
+                            : (this.state.counter % 2 === 0)
+                            ? this.state.players[0]
+                            : (this.state.counter % 2 !== 0)
+                            && this.state.players[1]
+                            }
                     </h1>
-                    <button className="Back_btn btn" onClick={() => this.handleBack()}>
+                    
+                    <button className="Back_btn btn" 
+                            onClick={() => this.handleBack()}
+                    >
                         back
                     </button>
 
                     <div className="container">
                         {cells}
                         <div
-                            style={winnertStyles}
-                            className="winner"
+                            className={
+                                    (win === 0)
+                                    ? "winner Winner--won bg_red"
+                                    : (win === 1)
+                                    ? "winner Winner--won bg_yellow"
+                                    : (this.state.counter === 9)
+                                    ? "winner Winner--draw"
+                                    : (this.state.reset)
+                                    ? "display_none winner"
+                                    : (!this.state.reset)
+                                    && "winner"}
+                                    
                         >
-                            {winnertStyles.text}
+                            {
+                                (win === 0 || win === 1)
+                                ? `The ${this.state.players[win]} won the competition` 
+                                : (this.state.counter === 9)
+                                && "Draw"
+                            }
                         </div>
 
                         <button
                             className="Reset_btn btn"
                             onClick={() => this.handleReset()}
                         >
-                            {resetText}
+                            {(this.state.counter === 9 || win === 0 || win === 1)
+                                ? "revenge" 
+                                : (!this.state.reset || this.state.reset)
+                                && "reset"
+                        }
                         </button>
                     </div>
                 </div>
@@ -223,4 +213,3 @@ export default class App extends Component {
         );
     }
 }
-// console.log(Math.round(Math.random(0, 8) * 10));
