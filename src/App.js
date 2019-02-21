@@ -18,8 +18,7 @@ export default class App extends Component {
         this.handleClick = this.handleClick.bind(this);
     }
 
-    handleClick(event) {
-        const position = +event.target.closest(".Cell").getAttribute("order");
+    handleClick(position) {
 
         this.setState(prevState => {
             const updatedCells = prevState.cells.map(cell => {
@@ -119,7 +118,7 @@ export default class App extends Component {
                 key={cell.id}
                 index={index}
                 value={cell.cellcolor}
-                handleClick={this.handleClick}
+                handleClick={() => this.handleClick(cell.id)}
             />
         ));
             
