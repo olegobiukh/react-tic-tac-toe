@@ -12,6 +12,6 @@ export default function Cell(props) {
     };
 
     return (
-        <div style={stylesColor} className='cell' order={props.index} state={props.value} onClick={props.handleClick} />
+        <div style={stylesColor} className='Cell' order={props.index} state={props.value} onClick={props.handleClick} />
     )
 }

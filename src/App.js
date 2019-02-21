@@ -173,20 +173,20 @@ export default class App extends Component {
                         back
                     </button>
 
-                    <div className="container">
+                    <div className="Container">
                         {cells}
                         <div
                             className={
                                     (win === 0)
-                                    ? "winner Winner--won bg_red"
+                                    ? "Winner Winner--won bg_red"
                                     : (win === 1)
-                                    ? "winner Winner--won bg_yellow"
+                                    ? "Winner Winner--won bg_yellow"
                                     : (this.state.counter === 9)
-                                    ? "winner Winner--draw"
+                                    ? "Winner Winner--draw"
                                     : (this.state.reset)
-                                    ? "display_none winner"
+                                    ? "display_none Winner"
                                     : (!this.state.reset)
-                                    && "winner"}
+                                    && "Winner"}
                                     
                         >
                             {

@@ -22,7 +22,7 @@
   color: #fff;
 }
 
-.winner {
+.Winner {
   display: none;
   position: absolute;
   width: 320px;
@@ -48,12 +48,12 @@
   color: #fff;
 }
 
-.container {
+.Container {
   position: relative;
   width: 320px;
 }
 
-.cell {
+.Cell {
   display: inline-block;
   font-size: 30px;
   width: 100px;
@@ -75,7 +75,7 @@
   cursor: pointer;
 }
 
-button:hover {
+.btn:hover {
   color: #000;
   background-color: #fff;
 }
