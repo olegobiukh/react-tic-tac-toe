@@ -17,6 +17,7 @@
   border: 2px solid #000;
 }
 
+
 .Header--draw {
   background-color: #000;
   color: #fff;
@@ -75,7 +76,7 @@
   cursor: pointer;
 }
 
-.btn:hover {
+button:hover {
   color: #000;
   background-color: #fff;
 }
@@ -96,9 +97,13 @@
 }
 
 .bg_red {
-  background-color: rgb(173, 74, 74)
+  background-color: rgb(173, 74, 74);
 }
 
 .bg_yellow {
   background-color: rgb(233, 247, 30);
+}
+
+.bg_white {
+  background-color: #fff;
 }

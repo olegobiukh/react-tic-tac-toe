@@ -19,7 +19,7 @@ export default class App extends Component {
     }
 
     handleClick(event) {
-        const position = +event.target.closest(".cell").getAttribute("order");
+        const position = +event.target.closest(".Cell").getAttribute("order");
 
         this.setState(prevState => {
             const updatedCells = prevState.cells.map(cell => {
@@ -167,7 +167,7 @@ export default class App extends Component {
                             }
                     </h1>
                     
-                    <button className="btn" 
+                    <button className="Back_btn btn" 
                             onClick={() => this.handleBack()}
                     >
                         back
