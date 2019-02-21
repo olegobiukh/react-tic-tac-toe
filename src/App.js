@@ -167,7 +167,7 @@ export default class App extends Component {
                             }
                     </h1>
                     
-                    <button className="Back_btn btn" 
+                    <button className="btn" 
                             onClick={() => this.handleBack()}
                     >
                         back
