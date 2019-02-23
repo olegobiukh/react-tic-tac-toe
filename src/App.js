@@ -1,7 +1,10 @@
 import React, { Component } from "react";
-import Start from "./Start";
-import Cell from "./Cell";
+import Start from "./components/Start";
+import Cell from "./components/Cell";
+import BackBtn from "./components/BackBtn";
+import ResetBtn from "./components/ResetBtn";
 import data from "./data";
+import classNames from "classnames";
 
 export default class App extends Component {
     constructor() {
@@ -9,7 +12,8 @@ export default class App extends Component {
         this.state = {
             cells: data,
             counter: 0,
-            reset: false,         
+            winner: false,
+            gameOver: false,
             players: [],
             player1: [],
             player2: [],
@@ -18,84 +22,15 @@ export default class App extends Component {
         this.handleClick = this.handleClick.bind(this);
     }
 
-    handleClick(position) {
 
-        this.setState(prevState => {
-            const updatedCells = prevState.cells.map(cell => {
-                if (cell.id === position && cell.cellcolor === 0) {
-                    if (this.state.counter % 2 === 0) {
-                        cell.cellcolor = 1;
-                        prevState.player1.push(position);
-                    } else if (this.state.counter % 2 !== 0) {
-                        cell.cellcolor = 2;
-                        prevState.player2.push(position);
-                    }
-                    prevState.counter++;
-                }
-                return cell;
-            });
+    isGameOver(counter) {
 
-            return {
-                cells: updatedCells
-            };
-        });
-    }
-
-    handleReset() {
-        this.setState(prevState => {
-            prevState.counter = 0;
-
-            const updatedCells = prevState.cells.map(cell => {
-                cell.cellcolor = 0;
-                return cell;
-            });
-
-            return {
-                cells: updatedCells
-            };
-        });
-
-        this.setState({reset: !this.state.reset})
-        
-    }
-
-    handleStart() {
-        const player1 = prompt("Player #1 name");
-        const player2 = prompt("Player #2 name");
-        this.setState({ players: [player1, player2] });
-    }
-
-    handleBack() {
-
-        this.setState(prevState => {
-            let countBack;
-
-            if (prevState.counter > 0) {
-                if (prevState.counter % 2 === 0) {
-                    countBack = prevState.player2.pop();
-                    prevState.counter--;
-                    prevState.cells[countBack].cellcolor = 0;
-                } else if (prevState.counter % 2 !== 0) {
-                    countBack = prevState.player1.pop();
-                    prevState.counter--;
-                    prevState.cells[countBack].cellcolor = 0;
-                }
-            }
-
-            return prevState;
-        });
+        return (counter === 9) ? true : false;
     }
 
     checkForWinner() {
         const combinations = [
-            "012",
-            "345",
-            "678",
-            "036",
-            "147",
-            "258",
-            "048",
-            "246"
+            "012", "345", "678", "036", "147", "258", "048", "246"
         ];
 
         for (let i = 0; i < combinations.length; i++) {
@@ -105,10 +40,136 @@ export default class App extends Component {
                 this.state.cells[a].cellcolor === this.state.cells[b].cellcolor &&
                 this.state.cells[b].cellcolor === this.state.cells[c].cellcolor
             ) {
-
-             return this.state.cells[a].cellcolor === 1 ? 0 : 1;
+                return this.state.cells[a].cellcolor === 2 ? 2 : 1;
             }
         }
+    }
+
+    handleClick(position) {
+        
+            this.setState(prevState => {
+                const player1 = [...prevState.player1];
+                const player2 = [...prevState.player2];
+                let {counter, winner, gameOver} = prevState;
+
+                const updatedCells = prevState.cells.map(cell => {
+                    if (cell.id === position && cell.cellcolor === 0) {
+
+                        if (this.state.counter % 2 === 0) {
+                            cell.cellcolor = 1;
+                            player1.push(position);
+                            counter += 1;
+                        } else {
+                            cell.cellcolor = 2;
+                            player2.push(position);
+                            counter += 1;
+                        }
+                        winner = this.checkForWinner();
+                        gameOver = this.isGameOver(counter);
+                        
+                    }
+                    return cell;
+                });            
+                
+                
+                if (this.state.counter % 2 === 0) {
+                    return {
+                        cells: updatedCells,
+                        player1,
+                        counter,
+                        winner,
+                        gameOver
+                    };
+                } else {
+                    return {
+                        cells: updatedCells,
+                        player2,
+                        counter,
+                        winner,
+                        gameOver
+                    };
+                }
+                
+            });
+        
+    }    
+
+    handleReset = () => {
+
+        this.setState(prevState => {
+            let winner = prevState.winner;
+            winner = 0;
+            const updatedCells = prevState.cells.map(cell => {
+                cell.cellcolor = 0;
+                return cell;
+            });
+
+            return {
+                cells: updatedCells,
+                counter: 0,
+                gameOver: false,
+                winner
+            };
+        });
+
+    }
+
+    handleStart = () => {
+        const player1 = prompt("Player #1 name");
+        const player2 = prompt("Player #2 name");
+        this.setState({ players: [player1, player2] });
+    }
+
+    handleBack = () => {
+
+        this.setState(prevState => {
+            const player1 = [...prevState.player1];
+            const player2 = [...prevState.player2];
+            let counter = prevState.counter;
+            let countBack;
+            let winner = prevState.winner;
+            
+            if (prevState.counter > 0) {
+                winner = 0;
+                if (prevState.counter % 2 === 0) {
+                    countBack = player2.pop();
+                    
+                    const updatedCells = prevState.cells.map(cell => {
+                        if (cell.id === countBack) {
+                            cell.cellcolor = 0;
+                        }
+                        return cell;
+                    });
+                    
+                    return {
+                        cells: updatedCells,
+                        counter: counter - 1,
+                        player2,
+                        gameOver: false,
+                        winner
+                    };
+                } else {
+                    countBack = player1.pop();
+
+                    const updatedCells = prevState.cells.map(cell => {
+                        if (cell.id === countBack) {
+
+                            cell.cellcolor = 0;
+                        }
+                        return cell;
+                    });
+                    
+                    return {
+                        cells: updatedCells,
+                        counter: counter - 1,
+                        player1: player1,
+                        gameOver: false,
+                        winner
+                    };
+                }
+            }            
+            
+        });
     }
 
     render() {
@@ -121,95 +182,71 @@ export default class App extends Component {
                 handleClick={() => this.handleClick(cell.id)}
             />
         ));
-            
-        const win = this.checkForWinner();
 
-        return (
-            <div>
-                <Start
-                    StartStyles={(
-                        this.state.players.every(player => player) &&
-                        this.state.players.length === 2
-                            ? "display_none"
-                            : "Start_btn btn")}
+        const headerClasses = classNames({
+            "Header": true,
+            "bg_red": this.state.counter % 2 === 0,
+            "bg_green": this.state.counter % 2 !== 0,
+            "color_red": this.state.winner === 1, 
+            "color_green": this.state.winner === 2,            
+            "bg_white": this.state.winner || this.state.gameOver,
+        })
+        
+        const winnerClasses = classNames({
+            "Winner": true,
+            "Winner--won bg_green": this.state.winner === 2,
+            "Winner--won bg_red": this.state.winner === 1,
+            "Winner--draw": this.state.gameOver,
+        });
 
-                    handleStart={this.handleStart.bind(this)}
-                />
+        if (this.state.players.every(player => player) &&
+            this.state.players.length === 2) {
 
-                <div className={(
-                    this.state.players.every(player => player) &&
-                        this.state.players.length === 2
-                        ? "display_block"
-                        : "display_none")}>
-                    <h1
-                        className={(this.state.counter === 9)
-                                    ? "Header Header--draw"
-                                    : (win === 1)
-                                    ? "Header bg_yellow"
-                                    : (win === 0)
-                                    ? "Header bg_red"
-                                    :(this.state.counter % 2 === 0)
-                                    ? "Header bg_red"
-                                    : (this.state.counter % 2 !== 0)
-                                    && "Header bg_yellow"}
-                    >
-                        {(this.state.counter === 9)
-                            ? "Game over"
-                            : (win === 1)
-                            ? this.state.players[1]
-                            : (win === 0)
-                            ? this.state.players[0]
-                            : (this.state.counter % 2 === 0)
-                            ? this.state.players[0]
-                            : (this.state.counter % 2 !== 0)
-                            && this.state.players[1]
+            return (
+                <div>
+                    <div className={"display_block"}>
+                        <h1 className={headerClasses}>
+                            {(this.state.winner === 2)
+                                ? `${this.state.players[1]} won`
+                                : (this.state.winner === 1)
+                                    ? `${this.state.players[0]} won`
+                                    : (this.state.gameOver)
+                                        ? "Game over"
+                                        : (this.state.counter % 2 === 0)
+                                            ? this.state.players[0]
+                                            : this.state.players[1]
                             }
-                    </h1>
-                    
-                    <button className="Back_btn btn" 
-                            onClick={() => this.handleBack()}
-                    >
-                        back
-                    </button>
+                        </h1>
 
-                    <div className="Container">
-                        {cells}
-                        <div
-                            className={
-                                    (win === 0)
-                                    ? "Winner Winner--won bg_red"
-                                    : (win === 1)
-                                    ? "Winner Winner--won bg_yellow"
-                                    : (this.state.counter === 9)
-                                    ? "Winner Winner--draw"
-                                    : (this.state.reset)
-                                    ? "display_none Winner"
-                                    : (!this.state.reset)
-                                    && "Winner"}
-                                    
-                        >
-                            {
-                                (win === 0 || win === 1)
-                                ? `The ${this.state.players[win]} won the competition` 
-                                : (this.state.counter === 9)
-                                && "Draw"
-                            }
+                        <BackBtn handleBack={this.handleBack} />
+
+                        <div className="Container">
+                            {cells}
+                            <div className={winnerClasses} >
+                                {
+                                    (this.state.winner)
+                                        ? `The ${this.state.players[this.state.winner - 1]} won the competition`
+                                        : (this.state.gameOver)
+                                        && "Draw"
+                                }
+                            </div>
+
+                            <ResetBtn handleReset={this.handleReset} />
                         </div>
-
-                        <button
-                            className="Reset_btn btn"
-                            onClick={() => this.handleReset()}
-                        >
-                            {(this.state.counter === 9 || win === 0 || win === 1)
-                                ? "revenge" 
-                                : (!this.state.reset || this.state.reset)
-                                && "reset"
-                        }
-                        </button>
                     </div>
                 </div>
-            </div>
-        );
+            )
+
+        } else {
+            
+            return (
+                <div>
+                    <Start
+                        StartStyles={"Start_btn btn"}
+                        handleStart={this.handleStart}
+                    />
+                </div>
+            )
+        }                   
     }
 }
-

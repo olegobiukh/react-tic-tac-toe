@@ -96,11 +96,19 @@ button:hover {
 }
 
 .bg_red {
-  background-color: rgb(173, 74, 74);
+  background-color: rgb(239, 58, 52);
 }
 
-.bg_yellow {
-  background-color: rgb(233, 247, 30);
+.bg_green {
+  background-color: rgb(84, 196, 140);
+}
+
+.color_red {
+  color: rgb(239, 58, 52);
+}
+
+.color_green {
+  color: rgb(84, 196, 140);
 }
 
 .bg_white {
