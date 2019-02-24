@@ -12,93 +12,76 @@ export default class App extends Component {
         this.state = {
             cells: data,
             counter: 0,
-            winner: false,
+            winner: null,
             gameOver: false,
             players: [],
-            player1: [],
-            player2: [],
+            turns: []
         };
 
         this.handleClick = this.handleClick.bind(this);
     }
 
-
     isGameOver(counter) {
 
-        return (counter === 9) ? true : false;
+        return counter === 9;
     }
 
-    checkForWinner() {
+    checkForWinner(turns) {
         const combinations = [
             "012", "345", "678", "036", "147", "258", "048", "246"
         ];
 
+        const turn1 = turns.filter((item, i) => i % 2 === 0);
+        const turn2 = turns.filter((item, i) => i % 2 === 1);
+
         for (let i = 0; i < combinations.length; i++) {
             const [a, b, c] = combinations[i];
-            if (
-                this.state.cells[a].cellcolor !== 0 &&
-                this.state.cells[a].cellcolor === this.state.cells[b].cellcolor &&
-                this.state.cells[b].cellcolor === this.state.cells[c].cellcolor
-            ) {
-                return this.state.cells[a].cellcolor === 2 ? 2 : 1;
+
+            if (turn1.includes(+a) && turn1.includes(+b) && turn1.includes(+c)) {
+                return 0;
+            } else if (turn2.includes(+a) && turn2.includes(+b) && turn2.includes(+c)) {
+                return 1;
             }
         }
+        return null;
     }
 
     handleClick(position) {
-        
-            this.setState(prevState => {
-                const player1 = [...prevState.player1];
-                const player2 = [...prevState.player2];
-                let {counter, winner, gameOver} = prevState;
+        const turns = [...this.state.turns];
+        let { counter, winner, gameOver } = this.state;
+        const updatedCells = [...this.state.cells];
+        const toggle = this.state.counter % 2;
 
-                const updatedCells = prevState.cells.map(cell => {
-                    if (cell.id === position && cell.cellcolor === 0) {
+        if (this.state.cells[position].cellcolor === 0) {
+            updatedCells[position] = {
+                ...updatedCells[position],
+                cellcolor: toggle ? 2 : 1,
+            }
 
-                        if (this.state.counter % 2 === 0) {
-                            cell.cellcolor = 1;
-                            player1.push(position);
-                            counter += 1;
-                        } else {
-                            cell.cellcolor = 2;
-                            player2.push(position);
-                            counter += 1;
-                        }
-                        winner = this.checkForWinner();
-                        gameOver = this.isGameOver(counter);
-                        
-                    }
-                    return cell;
-                });            
-                
-                
-                if (this.state.counter % 2 === 0) {
-                    return {
-                        cells: updatedCells,
-                        player1,
-                        counter,
-                        winner,
-                        gameOver
-                    };
-                } else {
-                    return {
-                        cells: updatedCells,
-                        player2,
-                        counter,
-                        winner,
-                        gameOver
-                    };
-                }
-                
-            });
-        
+            if (toggle) {
+                turns.push(position);
+                counter += 1;
+            } else {
+                turns.push(position);
+                counter += 1;
+            }
+        }
+
+        winner = this.checkForWinner(turns);
+        gameOver = this.isGameOver(counter);           
+
+        this.setState({
+            cells: updatedCells,
+            turns,
+            counter,
+            winner,
+            gameOver
+        })        
     }    
 
     handleReset = () => {
 
         this.setState(prevState => {
-            let winner = prevState.winner;
-            winner = 0;
             const updatedCells = prevState.cells.map(cell => {
                 cell.cellcolor = 0;
                 return cell;
@@ -108,10 +91,10 @@ export default class App extends Component {
                 cells: updatedCells,
                 counter: 0,
                 gameOver: false,
-                winner
+                turns: [],
+                winner: null
             };
         });
-
     }
 
     handleStart = () => {
@@ -121,59 +104,33 @@ export default class App extends Component {
     }
 
     handleBack = () => {
+        const cells = [...this.state.cells];
+        const turns = [...this.state.turns];
+        let counter = this.state.counter;
 
-        this.setState(prevState => {
-            const player1 = [...prevState.player1];
-            const player2 = [...prevState.player2];
-            let counter = prevState.counter;
-            let countBack;
-            let winner = prevState.winner;
-            
-            if (prevState.counter > 0) {
-                winner = 0;
-                if (prevState.counter % 2 === 0) {
-                    countBack = player2.pop();
-                    
-                    const updatedCells = prevState.cells.map(cell => {
-                        if (cell.id === countBack) {
-                            cell.cellcolor = 0;
-                        }
-                        return cell;
-                    });
-                    
-                    return {
-                        cells: updatedCells,
-                        counter: counter - 1,
-                        player2,
-                        gameOver: false,
-                        winner
-                    };
-                } else {
-                    countBack = player1.pop();
-
-                    const updatedCells = prevState.cells.map(cell => {
-                        if (cell.id === countBack) {
-
-                            cell.cellcolor = 0;
-                        }
-                        return cell;
-                    });
-                    
-                    return {
-                        cells: updatedCells,
-                        counter: counter - 1,
-                        player1: player1,
-                        gameOver: false,
-                        winner
-                    };
-                }
-            }            
-            
-        });
+        if (turns.length > 0) {
+            const i = turns.pop();
+            counter--;
+          
+            cells[i] = {
+                ...cells[i],
+                cellcolor: 0,
+            }
+        }
+                
+        this.setState(
+            {
+                cells,
+                counter,
+                turns,
+                gameOver: false,
+                winner: null,
+            }
+        );        
     }
 
     render() {
-        
+
         const cells = this.state.cells.map((cell, index) => (
             <Cell
                 key={cell.id}
@@ -183,50 +140,46 @@ export default class App extends Component {
             />
         ));
 
+        const { winner, gameOver, counter, players } = this.state;
+        const currentPlayer = counter % 2 ? 1 : 0;
+
         const headerClasses = classNames({
             "Header": true,
-            "bg_red": this.state.counter % 2 === 0,
-            "bg_green": this.state.counter % 2 !== 0,
-            "color_red": this.state.winner === 1, 
-            "color_green": this.state.winner === 2,            
-            "bg_white": this.state.winner || this.state.gameOver,
+            "bg_red": counter % 2 === 0,
+            "bg_green": counter % 2 !== 0,
+            "color_red": winner === 0, 
+            "color_green": winner === 1,            
+            "bg_white": winner !== null || gameOver,
         })
         
         const winnerClasses = classNames({
             "Winner": true,
-            "Winner--won bg_green": this.state.winner === 2,
-            "Winner--won bg_red": this.state.winner === 1,
-            "Winner--draw": this.state.gameOver,
+            "Winner--won bg_green": winner === 1,
+            "Winner--won bg_red": winner === 0,
+            "Winner--draw": gameOver,
         });
 
-        if (this.state.players.every(player => player) &&
-            this.state.players.length === 2) {
+        if (players.every(player => player) &&
+            players.length === 2) {
 
             return (
                 <div>
                     <div className={"display_block"}>
-                        <h1 className={headerClasses}>
-                            {(this.state.winner === 2)
-                                ? `${this.state.players[1]} won`
-                                : (this.state.winner === 1)
-                                    ? `${this.state.players[0]} won`
-                                    : (this.state.gameOver)
-                                        ? "Game over"
-                                        : (this.state.counter % 2 === 0)
-                                            ? this.state.players[0]
-                                            : this.state.players[1]
-                            }
-                        </h1>
-
+                        {
+                            winner !== null
+                                ? <h1 className={headerClasses}>{players[winner]} won</h1>
+                                : <h1 className={headerClasses}>{gameOver ? "game over" : players[currentPlayer]}</h1>
+                        }
+                                                
                         <BackBtn handleBack={this.handleBack} />
 
                         <div className="Container">
                             {cells}
                             <div className={winnerClasses} >
                                 {
-                                    (this.state.winner)
-                                        ? `The ${this.state.players[this.state.winner - 1]} won the competition`
-                                        : (this.state.gameOver)
+                                    winner !== null
+                                        ? `The ${players[winner]} won the competition`
+                                        : gameOver
                                         && "Draw"
                                 }
                             </div>
